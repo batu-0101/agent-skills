@@ -130,6 +130,9 @@ def stage_paired_sandboxes(skill_path: Path) -> tuple[Path, Path]:
 
 def cleanup_sandbox(staged_path: Path) -> None:
     """Remove a staged sandbox without following replacement symlinks."""
+    if os.name == "nt":
+        from .windows_safety import cleanup_sandbox as native_cleanup
+        return native_cleanup(staged_path)
     staging_root = staged_path.parent
     open_flags = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
     try:

@@ -386,7 +386,7 @@ class RepositoryManifestTest(unittest.TestCase):
             "verification-methodology/evals/evals.json",
         }
         manifests = find_skill_manifests(ROOT)
-        discovered = {str(path.relative_to(ROOT)) for path in manifests}
+        discovered = {path.relative_to(ROOT).as_posix() for path in manifests}
         self.assertTrue(known.issubset(discovered))
 
         invalid = []

@@ -27,7 +27,7 @@ def canonical_names(root: Path) -> tuple[list[str], list[str]]:
     for path in sorted(root.glob("**/SKILL.md")):
         if path.parent.parent == root or path.parent.parent.parent == root:
             continue
-        excluded.append(str(path.relative_to(root)))
+        excluded.append(path.relative_to(root).as_posix())
     return names, excluded
 
 

@@ -392,6 +392,12 @@ def test_hashing_rejects_symlink_escapes():
 
 
 def test_hashing_rejects_validation_to_open_symlink_swap():
+    if path_safety_mod.os.name == "nt":
+        # The Windows implementation uses native RootDirectory handles rather
+        # than POSIX os.open. Inject the same real symlink swap at that boundary.
+        from eval_runner.tests.test_windows_safety import test_hashing_rejects_validation_to_open_symlink_swap as native_test
+        native_test()
+        return
     with tempfile.TemporaryDirectory() as tmp:
         tmp_path = Path(tmp)
         skill = _make_skill_dir(tmp_path)

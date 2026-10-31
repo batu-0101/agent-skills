@@ -49,6 +49,9 @@ def hash_contained_file(root: Path, relative_path: str) -> str | None:
     validation-to-read symlink swap cannot redirect the read outside ``root``.
     """
     validate_relative_path(relative_path)
+    if os.name == "nt":
+        from .windows_safety import hash_contained_file as native_hash
+        return native_hash(root, relative_path)
     root_path = root.resolve(strict=True)
     parts = PurePosixPath(relative_path).parts
     opened_fds: list[int] = []
