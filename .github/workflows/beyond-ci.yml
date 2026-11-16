@@ -1,0 +1,43 @@
+name: Beyond CI
+
+"on":
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  beyond-ci:
+    name: Beyond CI
+    runs-on: [self-hosted, Windows, X64]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Stack verification gate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          if (Test-Path "pyproject.toml") {
+            if (Get-ChildItem -Path . -Recurse -Depth 2 -Filter "test_*.py" -ErrorAction SilentlyContinue) {
+              py -3.12 -B -m pytest -q
+            }
+          }
+          if (Test-Path "package.json") {
+            $pkg = Get-Content "package.json" -Raw | ConvertFrom-Json
+            if ($pkg.scripts -and $pkg.scripts.test -and $pkg.scripts.test -notmatch "no test specified") {
+              npm test
+            }
+          }
+          if (Test-Path "go.mod") {
+            go test ./...
+          }
+          if (Test-Path "Cargo.toml") {
+            cargo check --quiet
+          }
+
+      - name: Beyond Dependabot security & lockfile gate
+        uses: beyond/dependabot@v2
+
+      - name: Beyond CodeRabbit SAST & AI review gate
+        uses: beyond/coderabbit@v2
